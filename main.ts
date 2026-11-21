@@ -12,5 +12,15 @@ const JOKE =
 
 const outPath = process.env.OUTPUT_PATH ?? "/output/entry.txt";
 
+// Self-check: the entry must stay exactly one line of plain UTF-8 with no
+// trailing newline, so a stray edit cannot silently break the format.
+if (JOKE.includes("\n") || JOKE.endsWith("\n") || JOKE.length === 0) {
+  throw new Error("joke must be a single line with no trailing newline");
+}
+const encoded = new TextEncoder().encode(JOKE);
+if (new TextDecoder("utf-8", { fatal: true }).decode(encoded) !== JOKE) {
+  throw new Error("joke must be valid UTF-8");
+}
+
 mkdirSync(dirname(outPath), { recursive: true });
 writeFileSync(outPath, JOKE, "utf8");
